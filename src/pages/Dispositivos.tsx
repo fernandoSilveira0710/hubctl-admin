@@ -1,16 +1,18 @@
 import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { PageHeader } from '@/components/common/PageHeader';
+import { PermissionGuard } from '@/components/common/PermissionGuard';
 import { Button } from '@/components/ui/button';
-import { Plus, Search, Copy } from 'lucide-react';
+import { Plus, Search, Copy, Edit, Lock, Unlock, Trash2, MoreHorizontal } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { mockDispositivos, mockTenants } from '@/lib/api/mock-data';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
-import { canCreate } from '@/lib/utils/permissions';
+import { canCreate, canUpdate, canDelete } from '@/lib/utils/permissions';
 import { EmptyState } from '@/components/common/EmptyState';
 import { TableSkeleton } from '@/components/common/LoadingSkeleton';
 import { Smartphone } from 'lucide-react';
@@ -49,12 +51,12 @@ export default function Dispositivos() {
         title="Dispositivos"
         description="Gerenciar dispositivos cadastrados"
         actions={
-          canAdd ? (
+          <PermissionGuard allowedRoles={['admin', 'operador']}>
             <Button>
               <Plus className="w-4 h-4 mr-2" />
               Novo Dispositivo
             </Button>
-          ) : null
+          </PermissionGuard>
         }
       />
 
@@ -143,9 +145,40 @@ export default function Dispositivos() {
                   </TableCell>
                   {canAdd && (
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm">
-                        Editar
-                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <PermissionGuard allowedRoles={['admin', 'operador']} showTooltip={false}>
+                            <DropdownMenuItem disabled={!canUpdate(user?.role || 'leitor')}>
+                              <Edit className="mr-2 h-4 w-4" />
+                              Editar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem disabled={!canUpdate(user?.role || 'leitor')}>
+                              {device.status === 'bloqueado' ? (
+                                <>
+                                  <Unlock className="mr-2 h-4 w-4" />
+                                  Desbloquear
+                                </>
+                              ) : (
+                                <>
+                                  <Lock className="mr-2 h-4 w-4" />
+                                  Bloquear
+                                </>
+                              )}
+                            </DropdownMenuItem>
+                          </PermissionGuard>
+                          <PermissionGuard allowedRoles={['admin']} showTooltip={false}>
+                            <DropdownMenuItem disabled={!canDelete(user?.role || 'leitor')} className="text-destructive">
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Excluir
+                            </DropdownMenuItem>
+                          </PermissionGuard>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   )}
                 </TableRow>
