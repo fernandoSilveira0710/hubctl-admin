@@ -12,14 +12,21 @@ import { ptBR } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
 import { canCreate } from '@/lib/utils/permissions';
 import { EmptyState } from '@/components/common/EmptyState';
+import { TableSkeleton } from '@/components/common/LoadingSkeleton';
 import { Smartphone } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Dispositivos() {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
   
   const canAdd = user && canCreate(user.role);
+
+  useState(() => {
+    const timer = setTimeout(() => setLoading(false), 800);
+    return () => clearTimeout(timer);
+  });
 
   const filteredDevices = mockDispositivos.filter(d =>
     d.id.toLowerCase().includes(searchQuery.toLowerCase()) ||

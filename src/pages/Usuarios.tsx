@@ -12,13 +12,20 @@ import { ptBR } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
 import { canManageUsers } from '@/lib/utils/permissions';
 import { EmptyState } from '@/components/common/EmptyState';
+import { TableSkeleton } from '@/components/common/LoadingSkeleton';
 import { Users } from 'lucide-react';
 
 export default function Usuarios() {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
   
   const canManage = user && canManageUsers(user.role);
+
+  useState(() => {
+    const timer = setTimeout(() => setLoading(false), 800);
+    return () => clearTimeout(timer);
+  });
 
   const filteredUsers = mockUsuarios.filter(u =>
     u.nome.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -47,20 +54,24 @@ export default function Usuarios() {
       />
 
       <div className="bg-card rounded-lg border border-border">
-        {/* Barra de busca e filtros */}
-        <div className="p-4 border-b border-border">
-          <div className="flex items-center gap-3">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar por nome ou email..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
-              />
+        {loading ? (
+          <TableSkeleton />
+        ) : (
+          <>
+            {/* Barra de busca e filtros */}
+            <div className="p-4 border-b border-border">
+              <div className="flex items-center gap-3">
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Buscar por nome ou email..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
         {/* Tabela */}
         {filteredUsers.length > 0 ? (
@@ -117,6 +128,8 @@ export default function Usuarios() {
               onClick: () => {}
             } : undefined}
           />
+            )}
+          </>
         )}
       </div>
     </MainLayout>
