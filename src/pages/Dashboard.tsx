@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { PageHeader } from '@/components/common/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Users, Building2, Smartphone, Key } from 'lucide-react';
 import { mockStats, mockLogs, mockDeviceActivityData } from '@/lib/api/mock-data';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -116,12 +117,15 @@ export default function Dashboard() {
 
         {/* Logs Recentes */}
         <Card className="lg:col-span-2">
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Atividade Recente</CardTitle>
+            <Button variant="ghost" size="sm" onClick={() => window.location.href = '/logs'}>
+              Ver todos
+            </Button>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {mockLogs.slice(0, 5).map((log) => (
+              {mockLogs.slice(0, 10).map((log) => (
                 <div key={log.id} className="flex items-start gap-3 pb-3 border-b border-border last:border-0 last:pb-0">
                   <div className="w-2 h-2 bg-primary rounded-full mt-2" />
                   <div className="flex-1 min-w-0">
